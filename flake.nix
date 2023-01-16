@@ -17,7 +17,6 @@
           hPkgs.hlint # Haskell codestyle checker
           hPkgs.haskell-language-server # LSP server for editor
           hPkgs.cabal-install
-          hPkgs.lhs2tex
           stack-wrapped
           pkgs.z3
           pkgs.boolector

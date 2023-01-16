@@ -1,0 +1,5 @@
+cradle:
+  stack:
+    components:
+    - path: "arith-synth"
+      component: "grisette-examples:exe:arith-synth"
