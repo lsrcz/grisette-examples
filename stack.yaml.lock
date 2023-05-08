@@ -5,53 +5,16 @@
 
 packages:
 - completed:
-    name: grisette-core
+    hackage: grisette-0.2.0.0@sha256:2526b89d25e38003b9f3370c9595d653f38123d656c812ccdc78ffdbf9360e53,7770
     pantry-tree:
-      sha256: 6a753e2f91895d64d7209c995868bd4ab6fe615526b23b6a4f551e0dcfac98c3
-      size: 5986
-    sha256: 21aec2aeeabb046a8e5bccc19344d30a94cfaabb5a0a1ebf51f9d3e34041acba
-    size: 103494
-    url: https://hackage.haskell.org/package/grisette-core-0.1.0.0/candidate/grisette-core-0.1.0.0.tar.gz
-    version: 0.1.0.0
+      sha256: f10101869e4cb7db427cc72419cbe174efc91cee2b5876912bdfaf7fbc23c0da
+      size: 8988
   original:
-    url: https://hackage.haskell.org/package/grisette-core-0.1.0.0/candidate/grisette-core-0.1.0.0.tar.gz
-- completed:
-    name: grisette-symir
-    pantry-tree:
-      sha256: f8951387c7987be02c404face0c22ca8142d57fbcd3ae4677226837cb6e6e496
-      size: 4930
-    sha256: e130a222cd2db36cf4d069117ad6c47c008fc34ad5d20a4486f4da3b11e32aff
-    size: 52358
-    url: https://hackage.haskell.org/package/grisette-symir-0.1.0.0/candidate/grisette-symir-0.1.0.0.tar.gz
-    version: 0.1.0.0
-  original:
-    url: https://hackage.haskell.org/package/grisette-symir-0.1.0.0/candidate/grisette-symir-0.1.0.0.tar.gz
-- completed:
-    name: grisette-backend-sbv
-    pantry-tree:
-      sha256: d6e7a2e0cbd61f9f2667f2791383be8dea2e158f5e849f6546861b661790b4bb
-      size: 1090
-    sha256: 138d3b1169c991a37c3190c258409c625941cf989fbab70c91add961bbc0d085
-    size: 23184
-    url: https://hackage.haskell.org/package/grisette-backend-sbv-0.1.0.0/candidate/grisette-backend-sbv-0.1.0.0.tar.gz
-    version: 0.1.0.0
-  original:
-    url: https://hackage.haskell.org/package/grisette-backend-sbv-0.1.0.0/candidate/grisette-backend-sbv-0.1.0.0.tar.gz
-- completed:
-    name: grisette
-    pantry-tree:
-      sha256: 90c9ab8ccb22d532d4e821d8714e8e50a1912171558e3e64d73aed636da09f4f
-      size: 259
-    sha256: 41f6c6e48ade96c81ed5d033aad095bd395139019469c0bfd6103c41e0aedcea
-    size: 2054
-    url: https://hackage.haskell.org/package/grisette-0.1.0.0/candidate/grisette-0.1.0.0.tar.gz
-    version: 0.1.0.0
-  original:
-    url: https://hackage.haskell.org/package/grisette-0.1.0.0/candidate/grisette-0.1.0.0.tar.gz
+    hackage: grisette-0.2.0.0
 snapshots:
 - completed:
-    sha256: be747117bed6d462806c883352c3206325b23480825103f5c87884e97e52819a
-    size: 619173
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/19/20.yaml
+    sha256: 6d1532d40621957a25bad5195bfca7938e8a06d923c91bc52aa0f3c41181f2d4
+    size: 619204
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/19/33.yaml
   original:
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/19/20.yaml
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/19/33.yaml

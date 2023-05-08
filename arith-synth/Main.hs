@@ -5,12 +5,14 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 module Main where
  
 import Grisette
 import GHC.Generics
-import Data.Maybe
+import Data.Proxy
 
 --------------------------------------------------------------------------------
 -- Symbolic programs
@@ -54,7 +56,7 @@ data SProgram
   deriving stock (Generic, Show)
   -- Some type classes provided by Grisette for building symbolic evaluation
   -- tools. See the documentation for more details.
-  deriving (GMergeable SymBool, GEvaluateSym Model, ToCon SProgram)
+  deriving (Mergeable, EvaluateSym, ToCon SProgram)
     via (Default SProgram)
 
 -- A template haskell procedure to help the construction of `SProgram` sets.
@@ -80,7 +82,7 @@ executableProgramSpace = interpretU . programSpace
 
 quickExample :: IO ()
 quickExample = do
-  res <- solve (UnboundedReasoning z3) (executableProgramSpace 2 ==~ 4)
+  res <- solve (precise z3) (executableProgramSpace 2 ==~ 4)
   case res of
     Left err -> print err
     Right mo -> do
@@ -216,7 +218,7 @@ synthesisExample = do
 -- range of a signed 16-bit integer, which is reasonable in our scenario.
 -- The reasoning could be unsound when there is an overflow.
 solverConfig :: GrisetteSMTConfig 16
-solverConfig = BoundedReasoning z3
+solverConfig = approx Proxy z3
 
 -- A function that synthesizes programs within the search space given some
 -- input-output pairs.
@@ -360,9 +362,9 @@ simple' = do
 
 main :: IO ()
 main = do
-  print "---- quick example ----"
+  putStrLn "---- quick example ----"
   quickExample
-  print "---- synthesis example ----"
+  putStrLn "---- synthesis example ----"
   synthesisExample
   simple
   simplePS
