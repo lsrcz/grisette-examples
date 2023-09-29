@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.1.
+-- This file has been generated from package.yaml by hpack version 0.35.2.
 --
 -- see: https://github.com/sol/hpack
 
-name:           grisette-examples
+name:           arith-synth
 version:        0.1.0.0
 synopsis:       Examples for Grisette
 description:    Example symbolic DSLs for Grisette
@@ -30,9 +30,9 @@ flag fast
 executable arith-synth
   main-is: Main.hs
   other-modules:
-      Paths_grisette_examples
+      Paths_arith_synth
   hs-source-dirs:
-      arith-synth
+      app
   ghc-options: -Wall -ferror-spans
   build-depends:
       base >=4.14 && <5

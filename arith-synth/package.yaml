@@ -1,4 +1,4 @@
-name: grisette-examples
+name: arith-synth
 version: 0.1.0.0
 synopsis: Examples for Grisette
 description: Example symbolic DSLs for Grisette
@@ -35,5 +35,5 @@ ghc-options: -Wall -ferror-spans
 
 executables:
   arith-synth:
-    source-dirs: arith-synth
+    source-dirs: app
     main: Main.hs
