@@ -1,35 +1,18 @@
 name: arith-synth
 version: 0.1.0.0
-synopsis: Examples for Grisette
-description: Example symbolic DSLs for Grisette
+synopsis: A synthesizer for arithmetic expressions.
+description: A synthesizer for arithmetic expressions.
 category: Formal Methods, Theorem Provers, Symbolic Computation, SMT
 author: "Sirui Lu"
 maintainer: Sirui Lu (siruilu@cs.washington.edu)
 license: BSD3
 license-file: LICENSE
 github: lsrcz/grisette-examples
-copyright: "2021-2022 Sirui Lu"
+copyright: "2021-2023 Sirui Lu"
 
 dependencies:
   - base >= 4.14 && < 5
   - grisette >= 0.3 && < 0.4
-
-flags:
-  {
-    fast:
-      {
-        description: "Compile with O2 optimization",
-        manual: False,
-        default: True,
-      },
-  }
-
-when:
-  - condition: flag(fast)
-    then:
-      ghc-options: -O2
-    else:
-      ghc-options: -O0
 
 ghc-options: -Wall -ferror-spans
 
