@@ -11,16 +11,18 @@ github: lsrcz/grisette-examples
 copyright: "2021-2022 Sirui Lu"
 
 dependencies:
-- base > 4.14 && < 5
-- grisette >= 0.2 && < 0.3
+  - base >= 4.14 && < 5
+  - grisette >= 0.3 && < 0.4
 
-flags: {
-  fast: {
-    description: "Compile with O2 optimization",
-    manual: False,
-    default: True,
+flags:
+  {
+    fast:
+      {
+        description: "Compile with O2 optimization",
+        manual: False,
+        default: True,
+      },
   }
-}
 
 when:
   - condition: flag(fast)

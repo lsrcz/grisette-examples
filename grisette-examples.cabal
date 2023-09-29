@@ -35,8 +35,8 @@ executable arith-synth
       arith-synth
   ghc-options: -Wall -ferror-spans
   build-depends:
-      base >4.14 && <5
-    , grisette ==0.2.*
+      base >=4.14 && <5
+    , grisette ==0.3.*
   default-language: Haskell2010
   if flag(fast)
     ghc-options: -O2

@@ -1,18 +1,46 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingVia #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
+
 module Main where
- 
+
+import Data.Proxy (Proxy (Proxy))
+import GHC.Generics (Generic)
 import Grisette
-import GHC.Generics
-import Data.Proxy
+  ( Default (Default),
+    EvaluateSym (..),
+    Fresh,
+    GenSymSimple (simpleFresh),
+    GrisetteSMTConfig,
+    LogicalOp ((&&~)),
+    Mergeable,
+    SEq ((==~)),
+    Solvable (con),
+    Solver (solve),
+    SymBool,
+    SymInteger,
+    ToCon (..),
+    ToSym (toSym),
+    UnionM,
+    approx,
+    chooseFresh,
+    chooseUnionFresh,
+    evaluateSymToCon,
+    makeUnionWrapper,
+    mrgIf,
+    mrgSingle,
+    onUnion,
+    precise,
+    runFresh,
+    z3,
+  )
 
 --------------------------------------------------------------------------------
 -- Symbolic programs
@@ -31,32 +59,28 @@ import Data.Proxy
 -- whole space of program.
 
 data SProgram
-  -- `SConst` represents a constant in the syntax tree.
-  --
-  -- `SConst 1` is the constant 1, while `SConst "c1"` is a symbolic constant,
-  -- and the solver can be used to find out what the concrete value should be.
-  = SConst SymInteger
-  -- `SInput` is very similar to the `SConst`, but is for inputs. We separate
-  -- these two mainly for clarity.
-  --
-  -- We do not use a solver to solve for a input variable for synthesis tasks,
-  -- and a program with symbolic program input is still considered as a concrete
-  -- program. We will further show why we design it this way when we talk about
-  -- pretty printing.
-  | SInput SymInteger
-  -- `SPlus` and `SMul` represent the addition and multiplication operators.
-  --
-  -- The children are **sets** of symbolic programs. Here `UnionM`s are such
-  -- sets.
-  --
-  -- The solver will try to pick one concrete program from the set of programs.
-  | SPlus (UnionM SProgram) (UnionM SProgram)
+  = -- `SConst` represents a constant in the syntax tree.
+    --
+    -- `SConst 1` is the constant 1, while `SConst "c1"` is a symbolic constant,
+    -- and the solver can be used to find out what the concrete value should be.
+    SConst SymInteger
+  | -- `SInput` is very similar to the `SConst`, but is for inputs. We separate
+    -- these two mainly for clarity.
+    SInput SymInteger
+  | -- `SPlus` and `SMul` represent the addition and multiplication operators.
+    --
+    -- The children are **sets** of symbolic programs. Here `UnionM`s are such
+    -- sets.
+    --
+    -- The solver will try to pick one concrete program from the set of programs.
+    SPlus (UnionM SProgram) (UnionM SProgram)
   | SMul (UnionM SProgram) (UnionM SProgram)
   -- `Generic` helps us derive other type class instances for `SProgram`.
   deriving stock (Generic, Show)
   -- Some type classes provided by Grisette for building symbolic evaluation
   -- tools. See the documentation for more details.
-  deriving (Mergeable, EvaluateSym, ToCon SProgram)
+  deriving
+    (Mergeable, EvaluateSym, ToCon SProgram)
     via (Default SProgram)
 
 -- A template haskell procedure to help the construction of `SProgram` sets.
@@ -73,6 +97,7 @@ $(makeUnionWrapper "mrg" ''SProgram)
 
 programSpace :: SymInteger -> UnionM SProgram
 programSpace x = mrgSMul (mrgSInput x) (mrgSConst "c")
+
 -- >>> executableProgramSpace 2
 -- (* 2 c)
 -- >>> executableProgramSpace "x"
@@ -94,7 +119,8 @@ quickExample = do
       let executableSynthesizedProgram :: Integer -> Integer =
             evaluateSymToCon mo . executableProgramSpace . toSym
       print $ executableSynthesizedProgram 2
-      -- 4
+
+-- 4
 
 --------------------------------------------------------------------------------
 -- Program spaces
@@ -125,7 +151,7 @@ space1 x =
   mrgSPlus
     (mrgSInput x)
     (mrgIf "choice" (mrgSInput x) (mrgSConst "c"))
-  
+
 -- Another program space:
 -- \x -> x {+ or *} {x or 1}
 -- or equivalently, (\x -> x + x) or (\x -> x * x) or (\x -> x + 1) or (\x -> x * 1).
@@ -231,16 +257,16 @@ ioPair progSpace pairs = do
   -- symbolic ones.
   res <- solve solverConfig (constraint $ toSym pairs)
   case res of
-    -- Print an error message if no solution was found in the space. 
+    -- Print an error message if no solution was found in the space.
     Left _ -> return Nothing
     Right model -> do
       -- Evaluate the program space to get the synthesized program.
       -- The toCon is used to convert `UnionM SProgram` to `SProgram`.
       return $ toCon $ evaluateSym False model (progSpace "x")
-  where    
-    -- make it top level since it's important 
+  where
+    -- make it top level since it's important
     constraint :: [(SymInteger, SymInteger)] -> SymBool
-    constraint [] = con True   -- 'con' type-converts from concrete to symbolic values 
+    constraint [] = con True -- 'con' type-converts from concrete to symbolic values
     -- The '~' postfixed operators are the symbolic versions of the
     -- corresponding Haskell operators.
     constraint ((x, y) : xs) = interpretU (progSpace x) ==~ y &&~ constraint xs
@@ -259,7 +285,7 @@ ioPair progSpace pairs = do
 -- fresh symbolic variables without explicitly provide their names. These fresh
 -- symbolic variables will be instantiated with `runFresh`.
 freshExpr :: [SProgram] -> Fresh (UnionM SProgram)
--- TODO: in the future, can we hide this under a rosette syntax-grammar like construct 
+-- TODO: in the future, can we hide this under a rosette syntax-grammar like construct
 freshExpr terminals = do
   -- choose the left hand side operand
   l <- chooseFresh terminals
@@ -267,31 +293,32 @@ freshExpr terminals = do
   r <- chooseFresh terminals
   -- choose the operator
   chooseFresh [SPlus l r, SMul l r]
-  
-  -- TODO: the full code should create ASTs of a given depth k 
-  -- say see full code for depth-k trees 
 
--- move this above freshExpr because it states the goal of our exercise here (it defiens the API). 
+-- TODO: the full code should create ASTs of a given depth k
+-- say see full code for depth-k trees
+
+-- move this above freshExpr because it states the goal of our exercise here (it defiens the API).
 -- A program space:
 -- \x -> {x or 1 or 2} {+ or *} {x or 1 or 2}
 space :: SymInteger -> UnionM SProgram
 space x = runFresh (freshExpr [SInput x, SConst 1, SConst 2]) "space"
 
--- TODO: give this first 
+-- TODO: give this first
 simple :: IO ()
 simple = do
   -- Call the synthesizer. The printed result could be verbose.
   -- Grisette provides functionalities to convert it to easier-to-print
-  -- programs via the 'ToCon' type class. Please check the documentation for 
+  -- programs via the 'ToCon' type class. Please check the documentation for
   -- more details.
   v1 <- ioPair space [(1, 1), (2, 4), (3, 9)]
   print v1
-  -- UMrg (Single (SMul (UMrg (Single (SInt x))) (UMrg (Single (SInt x))))) 
+  -- UMrg (Single (SMul (UMrg (Single (SInt x))) (UMrg (Single (SInt x)))))
   -- The results means the program \x -> x * x
   v2 <- ioPair space [(1, 2), (2, 4), (3, 6)]
   print v2
-  -- UMrg (Single (SPlus (UMrg (Single (SInt x))) (UMrg (Single (SInt x)))))
-  -- The results means the program \x -> x + x
+
+-- UMrg (Single (SPlus (UMrg (Single (SInt x))) (UMrg (Single (SInt x)))))
+-- The results means the program \x -> x + x
 
 --------------------------------------------------------------------------------
 -- Better Printing
@@ -320,7 +347,7 @@ ioPairPS progSpace pairs = do
     Left _ -> return Nothing
     Right model -> do
       return $ toCon $ evaluateSym False model (progSpace "x")
-  where    
+  where
     constraint :: [(SymInteger, SymInteger)] -> SymBool
     constraint [] = con True
     constraint ((x, y) : xs) = interpretU (progSpace x) ==~ y &&~ constraint xs
@@ -340,11 +367,11 @@ freshExpr' :: Int -> [SymInteger] -> Fresh (UnionM SProgram)
 freshExpr' n inputs
   | n <= 0 = leaves
   | otherwise = do
-    l <- freshExpr' (n - 1) inputs
-    r <- freshExpr' (n - 1) inputs
-    leafExpr <- leaves
-    arithExpr <- chooseFresh [SPlus l r, SMul l r]
-    chooseUnionFresh [leafExpr, arithExpr]
+      l <- freshExpr' (n - 1) inputs
+      r <- freshExpr' (n - 1) inputs
+      leafExpr <- leaves
+      arithExpr <- chooseFresh [SPlus l r, SMul l r]
+      chooseUnionFresh [leafExpr, arithExpr]
   where
     leaves = do
       c <- simpleFresh ()
@@ -355,9 +382,9 @@ space' depth x = runFresh (freshExpr' depth [x]) "space"
 
 simple' :: IO ()
 simple' = do
-  v1 <- ioPairPS (space' 2) [(3,42), (4,56), (5,72)]
+  v1 <- ioPairPS (space' 2) [(3, 42), (4, 56), (5, 72)]
   print v1
-  v2 <- ioPairPS (space' 3) [(3,342), (4,456), (5,572), (6,690)]
+  v2 <- ioPairPS (space' 3) [(3, 342), (4, 456), (5, 572), (6, 690)]
   print v2
 
 main :: IO ()

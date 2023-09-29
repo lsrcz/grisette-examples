@@ -1,5 +1,7 @@
 cradle:
   stack:
-    components:
-    - path: "arith-synth"
+    - path: "./arith-synth/Main.hs"
+      component: "grisette-examples:exe:arith-synth"
+
+    - path: "./arith-synth/Paths_grisette_examples.hs"
       component: "grisette-examples:exe:arith-synth"
