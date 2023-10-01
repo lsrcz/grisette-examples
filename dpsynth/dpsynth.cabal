@@ -1,0 +1,135 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.2.
+--
+-- see: https://github.com/sol/hpack
+
+name:           dpsynth
+version:        0.1.0.0
+synopsis:       A synthesizer for arithmetic expressions.
+description:    A synthesizer for arithmetic expressions.
+category:       Formal Methods, Theorem Provers, Symbolic Computation, SMT
+homepage:       https://github.com/lsrcz/grisette-examples#readme
+bug-reports:    https://github.com/lsrcz/grisette-examples/issues
+author:         Sirui Lu
+maintainer:     Sirui Lu (siruilu@cs.washington.edu)
+copyright:      2023 Sirui Lu
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/lsrcz/grisette-examples
+
+library
+  exposed-modules:
+      DPSynth.ByteCode
+      DPSynth.Component
+      DPSynth.Concrete
+      DPSynth.Error
+      DPSynth.Experimental.CEGIS
+      DPSynth.Util.Arith
+      DPSynth.Util.MainFunc
+      DPSynth.Util.TimeIt
+  other-modules:
+      Paths_dpsynth
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -ferror-spans
+  build-depends:
+      QuickCheck
+    , base >=4.14 && <5
+    , clock
+    , cmdargs
+    , grisette ==0.3.*
+    , mtl
+    , quickcheck-with-counterexamples
+    , sbv
+    , text
+    , transformers
+  default-language: Haskell2010
+
+executable mas
+  main-is: Main.hs
+  other-modules:
+      Paths_dpsynth
+  hs-source-dirs:
+      mas
+  ghc-options: -Wall -ferror-spans
+  build-depends:
+      QuickCheck
+    , base >=4.14 && <5
+    , clock
+    , cmdargs
+    , dpsynth
+    , grisette ==0.3.*
+    , mtl
+    , quickcheck-with-counterexamples
+    , sbv
+    , text
+    , transformers
+  default-language: Haskell2010
+
+executable mis
+  main-is: Main.hs
+  other-modules:
+      Paths_dpsynth
+  hs-source-dirs:
+      mis
+  ghc-options: -Wall -ferror-spans
+  build-depends:
+      QuickCheck
+    , base >=4.14 && <5
+    , clock
+    , cmdargs
+    , dpsynth
+    , grisette ==0.3.*
+    , mtl
+    , quickcheck-with-counterexamples
+    , sbv
+    , text
+    , transformers
+  default-language: Haskell2010
+
+executable mmm
+  main-is: Main.hs
+  other-modules:
+      Paths_dpsynth
+  hs-source-dirs:
+      mmm
+  ghc-options: -Wall -ferror-spans
+  build-depends:
+      QuickCheck
+    , base >=4.14 && <5
+    , clock
+    , cmdargs
+    , dpsynth
+    , grisette ==0.3.*
+    , mtl
+    , quickcheck-with-counterexamples
+    , sbv
+    , text
+    , transformers
+  default-language: Haskell2010
+
+executable mss
+  main-is: Main.hs
+  other-modules:
+      Paths_dpsynth
+  hs-source-dirs:
+      mss
+  ghc-options: -Wall -ferror-spans
+  build-depends:
+      QuickCheck
+    , base >=4.14 && <5
+    , clock
+    , cmdargs
+    , dpsynth
+    , grisette ==0.3.*
+    , mtl
+    , quickcheck-with-counterexamples
+    , sbv
+    , text
+    , transformers
+  default-language: Haskell2010

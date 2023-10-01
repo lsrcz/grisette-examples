@@ -1,0 +1,46 @@
+name: dpsynth
+version: 0.1.0.0
+synopsis: A synthesizer for arithmetic expressions.
+description: A synthesizer for arithmetic expressions.
+category: Formal Methods, Theorem Provers, Symbolic Computation, SMT
+author: "Sirui Lu"
+maintainer: Sirui Lu (siruilu@cs.washington.edu)
+license: BSD3
+license-file: LICENSE
+github: lsrcz/grisette-examples
+copyright: "2023 Sirui Lu"
+
+dependencies:
+  - base >= 4.14 && < 5
+  - grisette >= 0.3 && < 0.4
+  - text
+  - mtl
+  - transformers
+  - sbv
+  - QuickCheck
+  - quickcheck-with-counterexamples
+  - cmdargs
+  - clock
+
+ghc-options: -Wall -ferror-spans
+
+library:
+  source-dirs: src
+
+executables:
+  mss:
+    source-dirs: mss
+    main: Main.hs
+    dependencies: dpsynth
+  mis:
+    source-dirs: mis
+    main: Main.hs
+    dependencies: dpsynth
+  mas:
+    source-dirs: mas
+    main: Main.hs
+    dependencies: dpsynth
+  mmm:
+    source-dirs: mmm
+    main: Main.hs
+    dependencies: dpsynth

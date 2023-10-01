@@ -30,6 +30,7 @@ resolver: lts-21.11
 #   - wai
 packages:
   - arith-synth
+  - dpsynth
 
 # Dependency packages to be pulled from upstream that are not in the resolver.
 # These entries can reference officially published versions as well as
@@ -42,7 +43,10 @@ packages:
 #
 # extra-deps: []
 extra-deps:
-  - grisette-0.3.1.0
+  # - grisette-0.3.1.0
+  - git: https://github.com/lsrcz/grisette
+    commit: eb9423098465df9d66942739ea176fdf78fc57fc
+  - quickcheck-with-counterexamples-1.2
 # Override default flag values for local packages and extra-deps
 # flags: {}
 

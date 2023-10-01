@@ -5,3 +5,30 @@ cradle:
 
     - path: "arith-synth/app/Paths_arith_synth.hs"
       component: "arith-synth:exe:arith-synth"
+
+    - path: "dpsynth/src"
+      component: "dpsynth:lib"
+
+    - path: "dpsynth/mas/Main.hs"
+      component: "dpsynth:exe:mas"
+
+    - path: "dpsynth/mas/Paths_dpsynth.hs"
+      component: "dpsynth:exe:mas"
+
+    - path: "dpsynth/mis/Main.hs"
+      component: "dpsynth:exe:mis"
+
+    - path: "dpsynth/mis/Paths_dpsynth.hs"
+      component: "dpsynth:exe:mis"
+
+    - path: "dpsynth/mmm/Main.hs"
+      component: "dpsynth:exe:mmm"
+
+    - path: "dpsynth/mmm/Paths_dpsynth.hs"
+      component: "dpsynth:exe:mmm"
+
+    - path: "dpsynth/mss/Main.hs"
+      component: "dpsynth:exe:mss"
+
+    - path: "dpsynth/mss/Paths_dpsynth.hs"
+      component: "dpsynth:exe:mss"

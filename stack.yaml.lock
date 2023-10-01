@@ -4,16 +4,27 @@
 #   https://docs.haskellstack.org/en/stable/lock_files
 
 packages:
-  - completed:
-      hackage: grisette-0.3.1.0@sha256:3a654fad40f3543ccdf5c48ead2886acdee3a4e20a6a97ca3e6a1140c5498dde,8287
-      pantry-tree:
-        sha256: d547e23ea95ad9ef1211bd42309c2414214c72418657ca391494f606aac5573d
-        size: 9310
-    original:
-      hackage: grisette-0.3.1.0
+- completed:
+    commit: eb9423098465df9d66942739ea176fdf78fc57fc
+    git: https://github.com/lsrcz/grisette
+    name: grisette
+    pantry-tree:
+      sha256: 0fcae718efce95f4fdc7196245b34120ce866452409935860e8ec3bef4be0b50
+      size: 13228
+    version: 0.3.1.1
+  original:
+    commit: eb9423098465df9d66942739ea176fdf78fc57fc
+    git: https://github.com/lsrcz/grisette
+- completed:
+    hackage: quickcheck-with-counterexamples-1.2@sha256:d322d79008602df26f5eb4e1379e5b58bf1a92604df8601e71e200cfc3e847a3,1688
+    pantry-tree:
+      sha256: 0046517e3cc2adebfce19d4aad05a06dcf55ec9e572fa1c661ba9abe81386484
+      size: 724
+  original:
+    hackage: quickcheck-with-counterexamples-1.2
 snapshots:
-  - completed:
-      sha256: 64d66303f927e87ffe6b8ccf736229bf608731e80d7afdf62bdd63c59f857740
-      size: 640037
-      url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/21/11.yaml
-    original: lts-21.11
+- completed:
+    sha256: 64d66303f927e87ffe6b8ccf736229bf608731e80d7afdf62bdd63c59f857740
+    size: 640037
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/21/11.yaml
+  original: lts-21.11
