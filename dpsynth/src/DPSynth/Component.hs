@@ -24,7 +24,7 @@ import DPSynth.Error
       ),
   )
 import DPSynth.Experimental.CEGIS
-  ( CEGISAlgorithm (initialVerifierState, runVerifier, synthCondition),
+  ( CEGISAlgorithm (initialSynthConditionState, initialVerifierState, runVerifier, synthCondition),
     VerificationResult (VerificationFoundCex, VerificationSuccess),
   )
 import DPSynth.Util.Arith (symMax)
@@ -240,17 +240,20 @@ instance
   CEGISAlgorithm
     SynthComponent
     Concrete.DPProgCex
+    ()
     [Gen [Concrete.Val]]
     DPProg
     Concrete.DPProg
   where
-  synthCondition _ prog cex ident =
+  synthCondition _ _ prog cex ident =
     let result = runDPProg prog (toSym (Concrete.dpProgCexInput cex))
-     in toSym
-          ( return (Concrete.dpProgCexOutput cex) ::
-              Context [Concrete.Val]
-          )
-          ==~ (runFreshT result ident :: Context [Val])
+     in ( toSym
+            ( return (Concrete.dpProgCexOutput cex) ::
+                Context [Concrete.Val]
+            )
+            ==~ (runFreshT result ident :: Context [Val]),
+          ()
+        )
   runVerifier problem gens prog = do
     r <-
       quickCheckDPProg
@@ -261,6 +264,7 @@ instance
     case r of
       Nothing -> return (VerificationSuccess, [])
       Just (cex, gens') -> return (VerificationFoundCex cex, gens')
+  initialSynthConditionState _ = ()
   initialVerifierState problem =
     [ vectorOf n (synthComponentFuzzingGenerator problem)
       | n <- [1 .. synthComponentMaxInputListLength problem]

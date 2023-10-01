@@ -6,7 +6,9 @@ import qualified DPSynth.ByteCode as ByteCode
 import qualified DPSynth.Component as Component
 import DPSynth.Concrete (DPProgCex (dpProgCexInput))
 import qualified DPSynth.Concrete as Concrete
+import qualified DPSynth.Experimental.ByteCodeCached as ByteCodeCached
 import DPSynth.Experimental.CEGIS (CEGISResult (CEGISSuccess), cegis)
+import qualified DPSynth.Experimental.ComponentCached as ComponentCached
 import DPSynth.Util.TimeIt (timeItAll)
 import Data.Data (Data, Typeable)
 import Grisette
@@ -74,6 +76,16 @@ mainFunc conProg conSpec elementGen bcProg compProg =
               bcProg
         print prog
         checkCEGISResult prog
+      "bytecode-cached" -> do
+        putStrLn "------- Synthesis (bytecode-cached) -------"
+        prog <-
+          timeItAll "Synthesis (bytecode-cached)" $
+            cegis
+              grisetteConfig
+              (ByteCodeCached.SynthByteCodeCached 4 conSpec elementGen)
+              bcProg
+        print prog
+        checkCEGISResult prog
       "component" -> do
         putStrLn "------- Synthesis (component) -------"
         prog <-
@@ -81,6 +93,16 @@ mainFunc conProg conSpec elementGen bcProg compProg =
             cegis
               grisetteConfig
               (Component.SynthComponent 4 1000 conSpec elementGen)
+              compProg
+        print prog
+        checkCEGISResult prog
+      "component-cached" -> do
+        putStrLn "------- Synthesis (component-cached) -------"
+        prog <-
+          timeItAll "Synthesis (component-cached)" $
+            cegis
+              grisetteConfig
+              (ComponentCached.SynthComponentCached 4 conSpec elementGen)
               compProg
         print prog
         checkCEGISResult prog

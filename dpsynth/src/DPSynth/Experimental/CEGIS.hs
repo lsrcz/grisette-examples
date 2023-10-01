@@ -50,20 +50,33 @@ data VerificationResult cex
   | VerificationSuccess
 
 class
-  CEGISAlgorithm problem cex verifierState symProg conProg
-    | problem -> cex verifierState symProg conProg
+  CEGISAlgorithm problem cex synthConditionState verifierState symProg conProg
+    | problem -> cex synthConditionState verifierState symProg conProg
   where
-  synthCondition :: problem -> symProg -> cex -> FreshIdent -> SymBool
+  synthCondition ::
+    problem ->
+    synthConditionState ->
+    symProg ->
+    cex ->
+    FreshIdent ->
+    (SymBool, synthConditionState)
   runVerifier ::
     problem ->
     verifierState ->
     conProg ->
     IO (VerificationResult cex, verifierState)
+  initialSynthConditionState :: problem -> synthConditionState
   initialVerifierState :: problem -> verifierState
 
 cegis ::
-  forall n problem cex verifierState symProg conProg.
-  ( CEGISAlgorithm problem cex verifierState symProg conProg,
+  forall n problem cex synthConditionState verifierState symProg conProg.
+  ( CEGISAlgorithm
+      problem
+      cex
+      synthConditionState
+      verifierState
+      symProg
+      conProg,
     ToCon symProg conProg,
     EvaluateSym symProg
   ) =>
@@ -84,6 +97,7 @@ cegis config problem symProg =
           let model = parseModel config md symbolMap
           loop
             0
+            (initialSynthConditionState problem)
             (initialVerifierState problem)
             (evaluateSymToCon model symProg)
             symbolMap
@@ -97,20 +111,22 @@ cegis config problem symProg =
   where
     loop ::
       Int ->
+      synthConditionState ->
       verifierState ->
       conProg ->
       SymBiMap ->
       SBVC.Query (CEGISResult cex conProg)
-    loop n verifierState conProg symbolMap = do
+    loop n synthConditionState verifierState conProg symbolMap = do
       r <- liftIO $ runVerifier problem verifierState conProg
       case r of
         (VerificationSuccess, _) -> return $ CEGISSuccess conProg
         (VerificationError err, _) ->
           return $ CEGISError $ "Verifier error: " <> err
         (VerificationFoundCex cex, verifierState') -> do
-          let SymBool t =
+          let (SymBool t, synthConditionState') =
                 synthCondition
                   problem
+                  synthConditionState
                   symProg
                   cex
                   (FreshIdentWithInfo "cegis" n) -- TODO: use unique identifier
@@ -123,6 +139,7 @@ cegis config problem symProg =
               let model = parseModel config md symbolMap'
               loop
                 (n + 1)
+                synthConditionState'
                 verifierState'
                 (evaluateSymToCon model symProg)
                 symbolMap'

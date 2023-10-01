@@ -21,6 +21,7 @@ dependencies:
   - quickcheck-with-counterexamples
   - cmdargs
   - clock
+  - containers
 
 ghc-options: -Wall -ferror-spans
 

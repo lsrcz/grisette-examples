@@ -28,7 +28,11 @@ library
       DPSynth.Component
       DPSynth.Concrete
       DPSynth.Error
+      DPSynth.Experimental.ByteCodeCached
       DPSynth.Experimental.CEGIS
+      DPSynth.Experimental.ComponentCached
+      DPSynth.Experimental.ConcreteCached
+      DPSynth.Experimental.TreeCache
       DPSynth.Util.Arith
       DPSynth.Util.MainFunc
       DPSynth.Util.TimeIt
@@ -42,6 +46,7 @@ library
     , base >=4.14 && <5
     , clock
     , cmdargs
+    , containers
     , grisette ==0.3.*
     , mtl
     , quickcheck-with-counterexamples
@@ -62,6 +67,7 @@ executable mas
     , base >=4.14 && <5
     , clock
     , cmdargs
+    , containers
     , dpsynth
     , grisette ==0.3.*
     , mtl
@@ -83,6 +89,7 @@ executable mis
     , base >=4.14 && <5
     , clock
     , cmdargs
+    , containers
     , dpsynth
     , grisette ==0.3.*
     , mtl
@@ -104,6 +111,7 @@ executable mmm
     , base >=4.14 && <5
     , clock
     , cmdargs
+    , containers
     , dpsynth
     , grisette ==0.3.*
     , mtl
@@ -125,6 +133,7 @@ executable mss
     , base >=4.14 && <5
     , clock
     , cmdargs
+    , containers
     , dpsynth
     , grisette ==0.3.*
     , mtl
