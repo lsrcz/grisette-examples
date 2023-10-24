@@ -6,6 +6,12 @@ cradle:
     - path: "arith-synth/app/Paths_arith_synth.hs"
       component: "arith-synth:exe:arith-synth"
 
+    - path: "datalab/src"
+      component: "datalab:lib"
+
+    - path: "datalab/app/Main.hs"
+      component: "datalab:exe:datalab"
+
     - path: "dpsynth/src"
       component: "dpsynth:lib"
 
