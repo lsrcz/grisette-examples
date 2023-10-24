@@ -6,12 +6,12 @@ cabal-version: 2.2
 
 name:           datalab
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/datalab#readme>
-homepage:       https://github.com/githubuser/datalab#readme
-bug-reports:    https://github.com/githubuser/datalab/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2023 Author name here
+description:    Please see the README on GitHub at <https://github.com/lsrcz/grisette-examples/tree/main/datalab>
+homepage:       https://github.com/lsrcz/grisette-examples#readme
+bug-reports:    https://github.com/lsrcz/grisette-examples/issues
+author:         Sirui Lu
+maintainer:     siruilu@cs.washington.edu
+copyright:      2023 Sirui Lu
 license:        BSD-3-Clause
 license-file:   LICENSE
 build-type:     Simple
@@ -21,7 +21,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/datalab
+  location: https://github.com/lsrcz/grisette-examples
 
 library
   exposed-modules:
