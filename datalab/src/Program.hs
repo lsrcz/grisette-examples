@@ -163,7 +163,7 @@ import Grisette
     mrgIf,
     mrgReturn,
   )
-import Grisette.Core.Data.Class.SymShift
+import Grisette.Core.Data.Class.SafeSymShift
   ( SafeSymShift (safeSymShiftL', safeSymShiftR'),
   )
 import Grisette.Lib.Control.Monad.Except (mrgThrowError)
