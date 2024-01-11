@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingVia #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -66,7 +67,7 @@ type Val = SymIntN 8
 
 data Stmt = Stmt {stmtOp :: T.Text, stmtIn :: [VarId], stmtOut :: VarId}
   deriving (Show, Eq, Generic)
-  deriving (EvaluateSym) via Default Stmt
+  deriving (EvaluateSym, SEq, SOrd) via Default Stmt
 
 deriving via Default Concrete.Stmt instance ToCon Stmt Concrete.Stmt
 
@@ -163,9 +164,29 @@ outDistinct =
     . fmap idValPairId
     . envOut
 
+canonical :: [Stmt] -> EvalContext ()
+canonical [] = mrgReturn ()
+canonical (x : xs) = do
+  go x xs
+  canonical xs
+  where
+    ca stmt1 stmt2 =
+      symAssertWith NotOptimal $
+        ( stmtOut stmt1
+            ==~ (stmtOut stmt2 + 1)
+            &&~ symAll (/=~ stmtOut stmt2) (stmtIn stmt1)
+        )
+          `implies` (stmt2 <~ stmt1)
+    go _ [] = mrgReturn ()
+    go stmt1 (stmt2 : ss) = do
+      ca stmt1 stmt2
+      ca stmt2 stmt1
+      go stmt1 ss
+
 runProg :: Prog -> [Val] -> AngelicContext [Val]
 runProg prog inVals = flip evalStateT (Env [] []) $ do
   symAssertWith BadProgInputs $ length inVals ==~ progInNum prog
+  -- canonical $ progStmts prog
   addProgInVals inVals
 
   let bound = progInNum prog + length (progStmts prog)
