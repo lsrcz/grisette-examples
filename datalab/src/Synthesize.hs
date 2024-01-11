@@ -37,7 +37,7 @@ synthesize ::
   ([SymVal] -> SymVal) ->
   -- | The program sketch to be synthesized.
   Prog ->
-  IO (Maybe Prog)
+  IO ([[SymVal]], Maybe Prog)
 synthesize config spec prog = do
   res <-
     cegisExceptStdVC
@@ -55,11 +55,11 @@ synthesize config spec prog = do
           symAssert (evalResult ==~ spec inputs)
       )
   case res of
-    (_, Left _) -> return Nothing
-    (_, Right m) ->
+    (cex, Left _) -> return (cex, Nothing)
+    (cex, Right m) ->
       -- If the synthesis succeeds and give us a model, we evaluate the program
       -- sketch on the model to get the synthesized program.
-      return $ Just $ evaluateSym True m prog
+      return (cex, Just $ evaluateSym True m prog)
   where
     -- We generate fresh symbolic values for the input variables.
     inputs :: [SymVal]

@@ -153,8 +153,10 @@ import GHC.Generics (Generic)
 import Grisette
   ( Default (Default),
     EvaluateSym,
+    LogicalOp ((&&~), (||~)),
     Mergeable,
     SEq ((==~)),
+    SOrd ((<~), (>=~)),
     SymIntN,
     SymWordN,
     ToCon,
@@ -194,8 +196,12 @@ data Op
   | BitOr
   | BitXor
   | Plus
+  | Minus
   | LeftShift
   | RightShift
+  | GetSign
+  | SubtractAndCheckSign
+  | SignDifference
   deriving (Show, Eq, Generic)
   deriving (Mergeable, EvaluateSym) via (Default Op)
 
@@ -267,7 +273,20 @@ interpretProg inputs (Prog _ stmts') =
         BitOr -> binaryOp (\a b -> return $ a .|. b) vals
         BitXor -> binaryOp (\a b -> return $ a `xor` b) vals
         Plus -> binaryOp (\a b -> return $ a + b) vals
+        Minus -> binaryOp (\a b -> return $ a - b) vals
         LeftShift -> binaryOp (safeSymShiftL' (const UndefinedBehavior)) vals
         RightShift -> binaryOp (safeSymShiftR' (const UndefinedBehavior)) vals
+        GetSign -> unaryOp (\v -> mrgIf (v <~ 0) (result 1) (result 0)) vals
+        SubtractAndCheckSign ->
+          binaryOp (\a b -> mrgIf (a - b <~ 0) (result 1) (result 0)) vals
+        SignDifference ->
+          binaryOp
+            ( \a b ->
+                mrgIf
+                  ((a <~ 0 &&~ b <~ 0) ||~ (a >=~ 0 &&~ b >=~ 0))
+                  (result 0)
+                  (result 1)
+            )
+            vals
       defVar res
       go stmts

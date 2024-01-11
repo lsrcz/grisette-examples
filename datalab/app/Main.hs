@@ -11,6 +11,7 @@ import Data.Bits (Bits (xor))
 import Grisette
   ( Fresh,
     GenSymSimple (simpleFresh),
+    LogicalOp (..),
     SOrd ((<=~)),
     UnionM,
     boolector,
@@ -19,6 +20,7 @@ import Grisette
     precise,
     runFresh,
   )
+import Grisette.Core (SOrd (..))
 import Program
   ( Op,
     Prog (..),
@@ -97,6 +99,48 @@ isLessOrEqualProg =
       Stmt mkBitAnd [14, 3]
     ]
 
+{-
+def isLessThanOrEqual(a, b):
+    asign = getSign(a) # 0 if a is non-negative, 1 if a is negative
+    print("asign", asign)
+    bsign = getSign(b) # 0 if b is non-negative, 1 if b is negative
+    print("bsign", bsign)
+    bmasign = subtractAndCheckSign(b, a) # 0 if b >= a, 1 if b < a
+    print("bmasign", bmasign)
+    notbmasign = np.bitwise_not(bmasign) # 1 if b >= a, 0 if b < a
+    print("notbmasign", notbmasign)
+    diffsign = np.bitwise_xor(asign, bsign) # 1 if a and b have different signs, 0 if a and b have the same sign
+    print("diffsign", diffsign)
+    anegbnonneg = np.bitwise_and(asign, diffsign)
+    print("anegbnonneg", anegbnonneg)
+    samesign = np.bitwise_not(diffsign)
+    print("samesign", samesign)
+    r9 = np.bitwise_and(notbmasign, samesign)
+    print("r9", r9)
+    r10 = np.bitwise_or(anegbnonneg, r9)
+    print("r10", r10)
+    r11 = 1
+    r12 = np.bitwise_and(r10, r11)
+    return r12
+-}
+
+isLessOrEqualProg' :: Prog
+isLessOrEqualProg' =
+  Prog
+    2
+    [ Stmt mkGetSign [0], -- 2
+      Stmt mkGetSign [1], -- 3
+      Stmt mkSubtractAndCheckSign [1, 0], -- 4
+      Stmt mkBitNot [4], -- 5: 1 if a <= b is negative
+      Stmt mkBitXor [2, 3], -- 6: 1 if a and b have different signs
+      Stmt mkBitAnd [2, 6], -- a <= 0 && b > 0
+      Stmt mkBitNot [6], -- same signs
+      Stmt mkBitAnd [5, 8],
+      Stmt mkBitOr [7, 9],
+      Stmt (mkLit 1) [],
+      Stmt mkBitAnd [10, 11]
+    ]
+
 freshArgList :: [Fresh SymVarId]
 freshArgList = [simpleFresh (), simpleFresh ()]
 
@@ -117,13 +161,90 @@ bitXorProgSketch =
         mkStmt notOrAnd freshArgList
       ]
 
+notOrAndOr :: Fresh (UnionM Op)
+notOrAndOr = chooseUnionFresh [mkBitNot, mkBitAnd, mkBitOr]
+
+isLessOrEqualProgSketch :: Prog
+isLessOrEqualProgSketch =
+  flip runFresh "prog" $
+    mkProg
+      2
+      [ mkStmt mkSignDifference [return 0, return 1],
+        mkStmt mkSubtractAndCheckSign freshArgList,
+        mkStmt mkGetSign [simpleFresh ()],
+        mkStmt notOrAnd [simpleFresh (), simpleFresh ()],
+        mkStmt notOrAnd [simpleFresh (), simpleFresh ()],
+        mkStmt andOr [simpleFresh (), simpleFresh ()],
+        mkStmt andOr [simpleFresh (), simpleFresh ()],
+        mkStmt andOr [simpleFresh (), simpleFresh ()],
+        mkStmt (mkLit 1) [],
+        mkStmt mkBitAnd [simpleFresh (), simpleFresh ()]
+      ]
+
+absSpec :: [SymVal] -> SymVal
+absSpec [a] = mrgIte (a <=~ 0) (-a) a
+absSpec _ = undefined
+
+absSketch :: Prog
+absSketch =
+  flip runFresh "prog" $
+    mkProg
+      1
+      [ mkStmt mkGetSign [return 0],
+        mkStmt notOrAndOr freshArgList,
+        mkStmt notOrAndOr freshArgList,
+        mkStmt notOrAndOr freshArgList,
+        mkStmt notOrAndOr freshArgList
+      ]
+
+compareSignsSpec :: [SymVal] -> SymVal
+compareSignsSpec [a, b] =
+  mrgIte (a <=~ 0) (mrgIte (b <=~ 0) 1 0) (mrgIte (b <=~ 0) 0 1)
+compareSignsSpec _ = undefined
+
+andOr :: Fresh (UnionM Op)
+andOr = chooseUnionFresh [mkBitAnd, mkBitOr]
+
+compareSignsSketch :: Prog
+compareSignsSketch =
+  flip runFresh "prog" $
+    mkProg
+      2
+      [ mkStmt mkGetSign [return 0],
+        mkStmt mkGetSign [return 1],
+        mkStmt andOr freshArgList,
+        mkStmt andOr freshArgList,
+        mkStmt andOr freshArgList
+      ]
+
+subtractAndCheckSpec :: [SymVal] -> SymVal
+subtractAndCheckSpec [a, b] = mrgIte (a - b >=~ 0) 1 0
+
+subtractAndCheckSpecSketch :: Prog
+subtractAndCheckSpecSketch =
+  flip runFresh "prog" $
+    mkProg
+      2
+      [ mkStmt (chooseUnionFresh [mkBitNot, mkPlus, mkGetSign]) freshArgList,
+        mkStmt (chooseUnionFresh [mkBitNot, mkPlus, mkGetSign]) freshArgList,
+        mkStmt (chooseUnionFresh [mkBitNot, mkPlus, mkGetSign]) freshArgList
+      ]
+
 main :: IO ()
 main = do
   let config = precise boolector
+  putStrLn "-- xor --"
   xorCex <- verify config bitXorSpec bitXorProg
   print xorCex
-  isLessOrEqualCex <- verify config isLessOrEqualSpec isLessOrEqualProg
-  print isLessOrEqualCex
-
   synthesized <- synthesize config bitXorSpec bitXorProgSketch
   print synthesized
+
+  putStrLn "-- isLessOrEqual --"
+  isLessOrEqualCex <- verify config isLessOrEqualSpec isLessOrEqualProg
+  print isLessOrEqualCex
+  isLessOrEqualCex' <- verify config isLessOrEqualSpec isLessOrEqualProg'
+  print isLessOrEqualCex'
+  p' <- synthesize config subtractAndCheckSpec subtractAndCheckSpecSketch
+  print p'
+  p' <- synthesize config isLessOrEqualSpec isLessOrEqualProgSketch
+  print p'

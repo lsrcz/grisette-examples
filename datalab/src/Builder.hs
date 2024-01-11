@@ -33,8 +33,12 @@ class OpBuilder op where
   mkBitOr :: op
   mkBitXor :: op
   mkPlus :: op
+  mkMinus :: op
   mkLeftShift :: op
   mkRightShift :: op
+  mkGetSign :: op
+  mkSubtractAndCheckSign :: op
+  mkSignDifference :: op
 
 instance OpBuilder Op where
   mkLit = Lit
@@ -44,8 +48,12 @@ instance OpBuilder Op where
   mkBitOr = BitOr
   mkBitXor = BitXor
   mkPlus = Plus
+  mkMinus = Minus
   mkLeftShift = LeftShift
   mkRightShift = RightShift
+  mkGetSign = GetSign
+  mkSubtractAndCheckSign = SubtractAndCheckSign
+  mkSignDifference = SignDifference
 
 instance OpBuilder (UnionM Op) where
   mkLit = mrgReturn . Lit
@@ -55,8 +63,12 @@ instance OpBuilder (UnionM Op) where
   mkBitOr = mrgReturn BitOr
   mkBitXor = mrgReturn BitXor
   mkPlus = mrgReturn Plus
+  mkMinus = mrgReturn Minus
   mkLeftShift = mrgReturn LeftShift
   mkRightShift = mrgReturn RightShift
+  mkGetSign = mrgReturn GetSign
+  mkSubtractAndCheckSign = mrgReturn SubtractAndCheckSign
+  mkSignDifference = mrgReturn SignDifference
 
 instance OpBuilder (Fresh (UnionM Op)) where
   mkLit = return . mkLit
@@ -66,8 +78,12 @@ instance OpBuilder (Fresh (UnionM Op)) where
   mkBitOr = return mkBitOr
   mkBitXor = return mkBitXor
   mkPlus = return mkPlus
+  mkMinus = return mkMinus
   mkLeftShift = return mkLeftShift
   mkRightShift = return mkRightShift
+  mkGetSign = return mkGetSign
+  mkSubtractAndCheckSign = return mkSubtractAndCheckSign
+  mkSignDifference = return mkSignDifference
 
 -- | We use the `StmtBuilder` to build 'Stmt' and @'Fresh' 'Stmt'@
 class StmtBuilder stmt op varId | stmt -> op varId where
