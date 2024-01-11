@@ -36,7 +36,7 @@ import Grisette
   ( Default (Default),
     EvaluateSym,
     GenSymSimple (simpleFresh),
-    SEq ((==~)),
+    SEq ((.==)),
     SimpleListSpec (SimpleListSpec),
     SymIntN,
     SymWordN,
@@ -88,7 +88,7 @@ getVal :: VarId -> EvalContext Val
 getVal i = get >>= go i
   where
     go _ [] = mrgThrowError UndefinedVar
-    go n (v : vs) = mrgIf (n ==~ 0) (return v) (go (n - 1) vs)
+    go n (v : vs) = mrgIf (n .== 0) (return v) (go (n - 1) vs)
 
 addVal :: Val -> EvalContext ()
 addVal v = mrgModify (++ [v])
@@ -192,7 +192,7 @@ instance
             ( return (Concrete.dpProgCexOutput cex) ::
                 Context [Concrete.Val]
             )
-            ==~ (result :: Context [Val]),
+            .== (result :: Context [Val]),
           ()
         )
   runVerifier problem gens prog = do

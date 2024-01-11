@@ -18,7 +18,7 @@ import DPSynth.Experimental.ConcreteCached
   ( InputGen (InputGen),
     quickCheckDPProgMaximizeCaching,
   )
-import Grisette (SEq ((==~)), ToSym (toSym))
+import Grisette (SEq ((.==)), ToSym (toSym))
 import Test.QuickCheck (Gen)
 
 data SynthByteCodeCached = SynthByteCodeCached
@@ -42,7 +42,7 @@ instance
             ( return (Concrete.dpProgCexOutput cex) ::
                 ByteCode.Context [Concrete.Val]
             )
-            ==~ (result :: ByteCode.Context [ByteCode.Val]),
+            .== (result :: ByteCode.Context [ByteCode.Val]),
           ()
         )
   runVerifier problem gens prog = do

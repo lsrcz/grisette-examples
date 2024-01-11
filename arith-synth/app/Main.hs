@@ -19,11 +19,10 @@ import Grisette
     Fresh,
     GenSymSimple (simpleFresh),
     GrisetteSMTConfig,
-    LogicalOp ((&&~)),
+    LogicalOp ((.&&)),
     Mergeable,
-    SEq ((==~)),
+    SEq ((.==)),
     Solvable (con),
-    Solver (solve),
     SymBool,
     SymInteger,
     ToCon (..),
@@ -39,6 +38,7 @@ import Grisette
     onUnion,
     precise,
     runFresh,
+    solve,
     z3,
   )
 
@@ -107,7 +107,7 @@ executableProgramSpace = interpretU . programSpace
 
 quickExample :: IO ()
 quickExample = do
-  res <- solve (precise z3) (executableProgramSpace 2 ==~ 4)
+  res <- solve (precise z3) (executableProgramSpace 2 .== 4)
   case res of
     Left err -> print err
     Right mo -> do
@@ -142,7 +142,7 @@ quickExample = do
 -- should be 3 and `choice` should be `False`, which means that the program
 -- should be \x -> x + 3.
 --
--- >>> solve solverConfig $ interpretU (space1 2) ==~ 5
+-- >>> solve solverConfig $ interpretU (space1 2) .== 5
 -- Right (Model {c -> 3 :: Integer, choice -> False :: Bool})
 --
 -- We will discuss this later in detail.
@@ -269,7 +269,7 @@ ioPair progSpace pairs = do
     constraint [] = con True -- 'con' type-converts from concrete to symbolic values
     -- The '~' postfixed operators are the symbolic versions of the
     -- corresponding Haskell operators.
-    constraint ((x, y) : xs) = interpretU (progSpace x) ==~ y &&~ constraint xs
+    constraint ((x, y) : xs) = interpretU (progSpace x) .== y .&& constraint xs
 
 --------------------------------------------------------------------------------
 -- Modular program space construction
@@ -350,7 +350,7 @@ ioPairPS progSpace pairs = do
   where
     constraint :: [(SymInteger, SymInteger)] -> SymBool
     constraint [] = con True
-    constraint ((x, y) : xs) = interpretU (progSpace x) ==~ y &&~ constraint xs
+    constraint ((x, y) : xs) = interpretU (progSpace x) .== y .&& constraint xs
 
 simplePS :: IO ()
 simplePS = do

@@ -47,7 +47,7 @@ library
     , clock
     , cmdargs
     , containers
-    , grisette ==0.3.*
+    , grisette ==0.4.*
     , mtl
     , quickcheck-with-counterexamples
     , sbv
@@ -69,7 +69,7 @@ executable mas
     , cmdargs
     , containers
     , dpsynth
-    , grisette ==0.3.*
+    , grisette ==0.4.*
     , mtl
     , quickcheck-with-counterexamples
     , sbv
@@ -91,7 +91,7 @@ executable mis
     , cmdargs
     , containers
     , dpsynth
-    , grisette ==0.3.*
+    , grisette ==0.4.*
     , mtl
     , quickcheck-with-counterexamples
     , sbv
@@ -113,7 +113,7 @@ executable mmm
     , cmdargs
     , containers
     , dpsynth
-    , grisette ==0.3.*
+    , grisette ==0.4.*
     , mtl
     , quickcheck-with-counterexamples
     , sbv
@@ -135,7 +135,7 @@ executable mss
     , cmdargs
     , containers
     , dpsynth
-    , grisette ==0.3.*
+    , grisette ==0.4.*
     , mtl
     , quickcheck-with-counterexamples
     , sbv

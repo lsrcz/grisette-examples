@@ -12,7 +12,7 @@ copyright: "2021-2023 Sirui Lu"
 
 dependencies:
   - base >= 4.14 && < 5
-  - grisette >= 0.3 && < 0.4
+  - grisette >= 0.4 && < 0.5
 
 ghc-options: -Wall -ferror-spans
 

@@ -11,7 +11,7 @@ import Data.Bits (Bits (xor))
 import Grisette
   ( Fresh,
     GenSymSimple (simpleFresh),
-    SOrd ((<=~)),
+    SOrd ((.<=)),
     UnionM,
     boolector,
     chooseUnionFresh,
@@ -57,7 +57,7 @@ bitXorProg =
     ]
 
 isLessOrEqualSpec :: [SymVal] -> SymVal
-isLessOrEqualSpec [a, b] = mrgIte (a <=~ b) 1 0
+isLessOrEqualSpec [a, b] = mrgIte (a .<= b) 1 0
 isLessOrEqualSpec _ = undefined
 
 -- void isLessOrEqual(int a, int b) {

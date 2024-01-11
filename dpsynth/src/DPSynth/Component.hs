@@ -24,7 +24,12 @@ import DPSynth.Error
       ),
   )
 import DPSynth.Experimental.CEGIS
-  ( CEGISAlgorithm (initialSynthConditionState, initialVerifierState, runVerifier, synthCondition),
+  ( CEGISAlgorithm
+      ( initialSynthConditionState,
+        initialVerifierState,
+        runVerifier,
+        synthCondition
+      ),
     VerificationResult (VerificationFoundCex, VerificationSuccess),
   )
 import DPSynth.Util.Arith (symMax)
@@ -37,10 +42,10 @@ import Grisette
     EvaluateSym,
     FreshT,
     GenSymSimple (simpleFresh),
-    LogicalOp (implies, (&&~)),
+    LogicalOp (symImplies, (.&&)),
     Mergeable,
-    SEq ((/=~), (==~)),
-    SOrd ((<=~), (<~), (>=~)),
+    SEq ((./=), (.==)),
+    SOrd ((.<), (.<=), (.>=)),
     SimpleListSpec (SimpleListSpec),
     Solvable (con),
     SymBool,
@@ -81,10 +86,10 @@ data Prog = Prog
 deriving via Default Concrete.Prog instance ToCon Prog Concrete.Prog
 
 symAll :: (Foldable t) => (a -> SymBool) -> t a -> SymBool
-symAll f = foldl' (\acc v -> acc &&~ f v) (con True)
+symAll f = foldl' (\acc v -> acc .&& f v) (con True)
 
 inBound :: VarId -> VarId -> SymBool
-inBound bound val = (0 <=~ val) &&~ (val <~ bound)
+inBound bound val = (0 .<= val) .&& (val .< bound)
 
 pairs :: [a] -> [(a, a)]
 pairs l = [(x, y) | (x : ys) <- tails l, y <- ys]
@@ -126,7 +131,7 @@ constrainStmt :: Int -> Stmt -> EvalContext ()
 constrainStmt idBound (Stmt op inId outId) = do
   symAssertWith UndefinedVar $ symAll (inBound outId) inId
   symAssertWith BadStmtOutputs $ inBound (fromIntegral idBound) outId
-  symAssertWith NotOptimal $ symAll (uncurry (<~)) $ zip inId (tail inId)
+  symAssertWith NotOptimal $ symAll (uncurry (.<)) $ zip inId (tail inId)
 
   inVal <- simpleFresh (SimpleListSpec (length inId) ())
   outVal <- simpleFresh ()
@@ -136,36 +141,36 @@ constrainStmt idBound (Stmt op inId outId) = do
 
   case op of
     "zero" -> do
-      symAssertWith BadSemantics $ outVal ==~ 0
+      symAssertWith BadSemantics $ outVal .== 0
     "max" -> do
-      symAssertWith BadNumOfOperands $ length inVal >=~ 1
-      symAssertWith BadSemantics $ outVal ==~ foldl1 symMax inVal
-    "add" -> symAssertWith BadSemantics $ outVal ==~ sum inVal
+      symAssertWith BadNumOfOperands $ length inVal .>= 1
+      symAssertWith BadSemantics $ outVal .== foldl1 symMax inVal
+    "add" -> symAssertWith BadSemantics $ outVal .== sum inVal
     "uminus" -> do
-      symAssertWith BadNumOfOperands $ length inVal >=~ 1
-      symAssertWith BadSemantics $ outVal ==~ negate (head inVal)
+      symAssertWith BadNumOfOperands $ length inVal .>= 1
+      symAssertWith BadSemantics $ outVal .== negate (head inVal)
     _ -> mrgThrowError $ UnknownOperator op
 
 connected :: Env -> EvalContext ()
 connected env =
   mrgSequence_ $
     [ symAssertWith BadSemantics $
-        (idValPairId inPair ==~ idValPairId outPair)
-          `implies` (idValPairVal inPair ==~ idValPairVal outPair)
+        (idValPairId inPair .== idValPairId outPair)
+          `symImplies` (idValPairVal inPair .== idValPairVal outPair)
       | inPair <- envIn env,
         outPair <- envOut env
     ]
 
 outDistinct :: Env -> EvalContext ()
 outDistinct =
-  mrgTraverse_ (symAssertWith BadSemantics . uncurry (/=~))
+  mrgTraverse_ (symAssertWith BadSemantics . uncurry (./=))
     . pairs
     . fmap idValPairId
     . envOut
 
 runProg :: Prog -> [Val] -> AngelicContext [Val]
 runProg prog inVals = flip evalStateT (Env [] []) $ do
-  symAssertWith BadProgInputs $ length inVals ==~ progInNum prog
+  symAssertWith BadProgInputs $ length inVals .== progInNum prog
   addProgInVals inVals
 
   let bound = progInNum prog + length (progStmts prog)
@@ -177,7 +182,7 @@ runProg prog inVals = flip evalStateT (Env [] []) $ do
       progOutIds prog
 
   symAssertWith NotOptimal $
-    symAll (uncurry (<~)) $
+    symAll (uncurry (.<)) $
       zip (progOutIds prog) (tail $ progOutIds prog)
 
   connected =<< get
@@ -251,7 +256,7 @@ instance
             ( return (Concrete.dpProgCexOutput cex) ::
                 Context [Concrete.Val]
             )
-            ==~ (runFreshT result ident :: Context [Val]),
+            .== (runFreshT result ident :: Context [Val]),
           ()
         )
   runVerifier problem gens prog = do

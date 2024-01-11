@@ -40,9 +40,9 @@ import GHC.Generics (Generic)
 import Grisette
   ( Default (Default),
     FreshIdent,
-    LogicalOp ((&&~)),
+    LogicalOp ((.&&)),
     Mergeable,
-    SEq ((==~)),
+    SEq ((.==)),
     SymBool,
     ToSym (toSym),
     UnionPrjOp (toGuardedList),
@@ -119,7 +119,7 @@ runDPProgCached' ::
   (SymBool, DPCache)
 runDPProgCached' cache inputs output prog ident = case x of
   [(b, Right (o, newCache))] ->
-    (b &&~ o ==~ toSym output, newCache)
+    (b .&& o .== toSym output, newCache)
   _ -> undefined
   where
     y =

@@ -154,7 +154,7 @@ import Grisette
   ( Default (Default),
     EvaluateSym,
     Mergeable,
-    SEq ((==~)),
+    SEq ((.==)),
     SymIntN,
     SymWordN,
     ToCon,
@@ -231,7 +231,7 @@ useVar varId = do
   go env (fromIntegral (length env) - 1 - varId)
   where
     go [] _ = badProg
-    go (x : xs) v = mrgIf (v ==~ 0) (result x) (go xs (v - 1))
+    go (x : xs) v = mrgIf (v .== 0) (result x) (go xs (v - 1))
 
 defVar :: SymVal -> StateContext ()
 defVar val = do
@@ -261,7 +261,7 @@ interpretProg inputs (Prog _ stmts') =
       singleOp <- lift $ lift op
       res <- case singleOp of
         Lit v -> mrgReturn v
-        Not -> unaryOp (\v -> mrgIf (v ==~ 0) (result 1) (result 0)) vals
+        Not -> unaryOp (\v -> mrgIf (v .== 0) (result 1) (result 0)) vals
         BitNot -> unaryOp (return . complement) vals
         BitAnd -> binaryOp (\a b -> return $ a .&. b) vals
         BitOr -> binaryOp (\a b -> return $ a .|. b) vals

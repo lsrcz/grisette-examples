@@ -21,7 +21,7 @@ description: Please see the README on GitHub at <https://github.com/lsrcz/griset
 
 dependencies:
   - base >= 4.7 && < 5
-  - grisette
+  - grisette >= 0.4.1 && < 0.5
   - mtl
 
 ghc-options:

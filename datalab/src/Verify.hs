@@ -16,12 +16,12 @@ import Control.Monad.Except (ExceptT)
 import Grisette
   ( GenSymSimple (simpleFresh),
     GrisetteSMTConfig,
-    SEq ((/=~)),
-    Solver (solve),
+    SEq ((./=)),
     SolvingFailure (Unsat),
     UnionM,
     evaluateSym,
     runFresh,
+    solve,
   )
 import Program (Error, Prog (..), SymVal, interpretProg)
 
@@ -31,7 +31,7 @@ verify ::
 verify config spec prog = do
   -- We try to find an input on which the program does not satisfy the
   -- specification or throws an error.
-  res <- solve config (evalResult /=~ return (spec inputs))
+  res <- solve config (evalResult ./= return (spec inputs))
   case res of
     Left Unsat -> return Nothing
     Left _ -> error "Unexpected solver error"

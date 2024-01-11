@@ -14,12 +14,13 @@ module Synthesize (synthesize) where
 import Control.Monad (replicateM)
 import Control.Monad.Except (withExceptT)
 import Grisette
-  ( EvaluateSym (evaluateSym),
+  ( CEGISResult (CEGISSuccess),
+    EvaluateSym (evaluateSym),
     GenSymSimple (simpleFresh),
     GrisetteSMTConfig,
-    SEq ((==~)),
+    SEq ((.==)),
     VerificationConditions (AssertionViolation),
-    cegisExceptStdVC,
+    cegisForAllExceptStdVC,
     runFresh,
     symAssert,
   )
@@ -40,7 +41,7 @@ synthesize ::
   IO (Maybe Prog)
 synthesize config spec prog = do
   res <-
-    cegisExceptStdVC
+    cegisForAllExceptStdVC
       config
       -- We will synthesize a program that works on **all** inputs. Here is how
       -- you specify the @forall@.
@@ -52,14 +53,14 @@ synthesize config spec prog = do
             -- synthesize a program that does not cause an assertion violation.
             withExceptT (const AssertionViolation) $
               interpretProg inputs prog
-          symAssert (evalResult ==~ spec inputs)
+          symAssert (evalResult .== spec inputs)
       )
   case res of
-    (_, Left _) -> return Nothing
-    (_, Right m) ->
+    (_, CEGISSuccess m) ->
       -- If the synthesis succeeds and give us a model, we evaluate the program
       -- sketch on the model to get the synthesized program.
       return $ Just $ evaluateSym True m prog
+    (_, _) -> return Nothing
   where
     -- We generate fresh symbolic values for the input variables.
     inputs :: [SymVal]
